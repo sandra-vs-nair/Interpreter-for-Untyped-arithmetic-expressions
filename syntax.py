@@ -94,6 +94,16 @@ def parse_atom(w):
         return "zero"
     elif w[0] in ["true", "false"]:
         return w.popleft()
+    else:
+        return ["var", parse_var(w)]
+
+def parse_var(w):
+    if len(w) == 0:
+        raise ParseError("unexpected end of string")
+    elif w[0] in special_toks or w[0] in reserved_words:
+        raise ParseError("unexpected '{}'".format(w[0]))
+    else:
+        return w.popleft()
 
 def read_lines(prompt=""):
     """Read lines from stdin. If the file is a tty, that is, keyboard input
