@@ -1,6 +1,6 @@
 import sys
-import os
 import collections
+
 try:
     import readline
 except ImportError:
@@ -27,12 +27,12 @@ def lexer(s):
             tokens.append("".join(s[i:j]))
             i = j
     while j < len(s):
-        if s[j].isspace():
+        if s[j].isspace():                  #Ignores space
             flush()
             i = j = j+1
         else:
-            for tok in special_toks:
-                if s[j:j+len(tok)] == tok:
+            for tok in special_toks: 
+                if s[j:j+len(tok)] == tok:  #If paranthesis found
                     flush()
                     tokens.append(tok)
                     i = j = j+len(tok)
@@ -51,22 +51,22 @@ def expect(what, w):
     
 def parse_term(s):
     w = collections.deque(lexer(s))
-    t = parse_abs(w)
+    t = parse_conditional(w)
     #print(t)
-    if len(w) != 0:
+    if len(w) != 0:                 #If some token remains in w
         raise ParseError("unexpected '{}' after term".format(w[0]))
     return t
     
-def parse_abs(w):
+def parse_conditional(w):
     if len(w) == 0:
         raise ParseError("unexpected end of string")
     elif w[0] == "if":
         expect("if", w)
-        t1 = parse_abs(w)
+        t1 = parse_conditional(w)
         expect("then", w)
-        t2 = parse_abs(w)
+        t2 = parse_conditional(w)
         expect("else", w)
-        t3 = parse_abs(w)
+        t3 = parse_conditional(w)
         return ["if", t1, t2, t3]
     else:
         return parse_app(w)
@@ -86,8 +86,8 @@ def parse_atom(w):
         raise ParseError("unexpected end of string")
     elif w[0] == "(":
         expect("(", w)
-        t = parse_abs(w)
-        expect(")", w)
+        t = parse_conditional(w)
+        expect(")", w)              #Closing paranthesis expected
         return t
     elif w[0] == "0":
         expect("0", w)
@@ -106,16 +106,10 @@ def parse_var(w):
         return w.popleft()
 
 def read_lines(prompt=""):
-    """Read lines from stdin. If the file is a tty, that is, keyboard input
-    from the user, then display a prompt and allow editing and history."""
-    if os.isatty(sys.stdin.fileno()):
-        while True:
-            try:
-                line = input(prompt)
-            except EOFError:
-                print()
-                break
-            yield line
-    else:
-        for line in sys.stdin:
-            yield line
+    while True:
+        try:
+            line = input(prompt)
+        except EOFError:
+            print()
+            break
+        yield line
