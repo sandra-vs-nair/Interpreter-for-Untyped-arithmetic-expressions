@@ -3,16 +3,39 @@ import os
 import collections
 import re
 import syntax
+#from iteration_utilities import deepflatten
 
 flag = 0
+
+def flatten(L):
+    
+    if len(L) == 1:
+        
+            if type(L[0]) == list:
+                
+                    result = flatten(L[0])
+                    
+            else:
+                
+                    result = L
+                
+    elif type(L[0]) == list:
+        
+            result = flatten(L[0]) + flatten(L[1:])
+            
+    else:
+        
+            result = [L[0]] + flatten(L[1:])
+        
+    return result
 
 def listToString(s):
 
     # initialize an empty string
     str1 = " "
-
+    s1=flatten(s)
     # return string
-    return (str1.join(s))
+    return (str1.join(s1))
 
 
 def eval_term(t):
