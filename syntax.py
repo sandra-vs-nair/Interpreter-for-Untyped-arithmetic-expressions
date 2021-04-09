@@ -14,7 +14,7 @@ class ParseError(Exception):
 special_toks = ["(", ")"]
 
 reserved_words = ["0", "succ", "pred", "iszero",
-                  "true", "false", "if", "then", "else"]
+                  "true", "false", "if", "then", "else", "and", "or", "not"]
 
 ### Lexer
 
@@ -69,6 +69,20 @@ def parse_conditional(w):
         t3 = parse_conditional(w)
         return ["if", t1, t2, t3]
     else:
+        return parse_and(w)
+
+def parse_and(w):
+    if len(w) == 0:
+        raise ParseError("unexpected end of string")
+    elif w[0] == "and":
+        expect("and", w)
+        t1 = parse_conditional(w)
+        expect("or", w)
+        t2 = parse_conditional(w)
+        expect("not", w)
+        t3 = parse_conditional(w)
+        return ["and", t1, t2, t3]
+    else:
         return parse_app(w)
 
 def parse_app(w):
@@ -77,8 +91,8 @@ def parse_app(w):
         t = [op, parse_atom(w)]
     else:
         t = parse_atom(w)
-    while len(w) > 0 and w[0] not in [")", "then", "else"]:
-        t = ["app", t, parse_atom(w)]
+    while len(w) > 0 and w[0] not in [")", "then", "else", "or", "not"]:
+        t = [t, parse_atom(w)]
     return t
 
 def parse_atom(w):
