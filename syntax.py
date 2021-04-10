@@ -109,7 +109,7 @@ def parse_atom(w):
     elif w[0] in ["true", "false"]:
         return w.popleft()
     else:
-        return ["var", parse_var(w)]
+        return [parse_var(w)]
 
 def parse_var(w):
     if len(w) == 0:

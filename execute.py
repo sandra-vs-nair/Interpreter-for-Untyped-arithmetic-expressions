@@ -44,7 +44,7 @@ def eval_term(t):
     if t[0] == 'iszero':
 
         val = (eval_term(t[1]))
-        if (val == 0 or val == ' 0'):
+        if (val == 0 or val == '0'):
             return 'true'
         elif val[-4:] == "true" or val[-5:] == "false":
             s = ['iszero', str(val)]
@@ -62,10 +62,10 @@ def eval_term(t):
         return (listToString(s))
     elif t[0] == 'pred':
         s = (eval_term(t[1]))
-        if s == 0:
-            return 0
+        if s == 0 or s == '0':
+            return '0'
         elif s[:4] == 'succ' and s[-1] == '0':
-            return s[4:]
+            return s[5:]
         else:
             s = ['pred', str(s)]
             return (listToString(s))
@@ -80,7 +80,9 @@ def eval_term(t):
             t3 = eval_term(t[3])
             t2 = True if t2 == "true" else False
             t3 = True if t3 == "true" else False
-            return (t1 and (t2 or(not t3))) 
+            m = t1 and (t2 or(not t3)) 
+            m = "true" if m == True else "false"
+            return m
         else:
             ch = 0
 
