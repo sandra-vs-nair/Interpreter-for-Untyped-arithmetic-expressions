@@ -36,10 +36,10 @@ def eval_term(t):
         return 'true'
     elif t == 'false' or t == False:
         return 'false'
-    elif t == 'zero':
+    elif t == '0':
         return '0'
 
-    elif t[0] == 'succ' and t[1] == 'zero':
+    elif t[0] == 'succ' and t[1] == '0':
         return 'succ 0'
     if t[0] == 'iszero':
 
@@ -128,14 +128,14 @@ def eval_term(t):
             three = ""
             if(t[2] == "true" or t[2] == "false"):
                 two = t[2]
-            elif(t[2] == "zero"):
+            elif(t[2] == "0"):
                 two = "0"
             else:
                 two = listToString(t[2])
 
             if(t[3] == "true" or t[3] == "false"):
                 three = t[3]
-            elif(t[3] == "zero"):
+            elif(t[3] == "0"):
                 three = "0"
             else:
                 three = listToString(t[3])
