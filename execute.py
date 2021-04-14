@@ -7,8 +7,11 @@ import syntax
 
 flag = 0
 
+
 def flatten(L):
-    
+    # print(L)
+    if(type(L) != list):
+        return [L]
     if len(L) == 1:
         if type(L[0]) == list:
             result = flatten(L[0])
@@ -18,17 +21,34 @@ def flatten(L):
         result = flatten(L[1:])
         result = flatten(L[0]) + result
     else:
-        result = flatten(L[1:])
-        result = [L[0]] + result
+        if L[0] == "if":
+            res1 = flatten(L[1])
+            res2 = flatten(L[2])
+            res3 = flatten(L[3])
+            result = ["if", "("] + res1 + [")", "then", "("] + \
+                res2 + [")", "else", "("]+res3+[")"]
+            return result
+        elif L[0] == "and":
+            res1 = flatten(L[1])
+            res2 = flatten(L[2])
+            res3 = flatten(L[3])
+            result = ["and", "("] + res1 + [")", "or", "("] + \
+                res2 + [")", "not", "("]+res3+[")"]
+            return result
+        else:
+            result = flatten(L[1:])
+            result = [L[0],"("] + result + [")"]
+    # print(result)
     return result
 
+
 def listToString(s):
-    
-    if isinstance(s,(str)):
+
+    if isinstance(s, (str)):
         return s
     # initialize an empty string
     str1 = " "
-    s1=flatten(s)
+    s1 = flatten(s)
     # return string
     return (str1.join(s1))
 
@@ -114,7 +134,7 @@ def eval_term(t):
                 three = "0"
             else:
                 three = listToString(t[3])
-            
+
             return (t[0]+"("+val+")"+"then"+"("+two+")"+"else"+"("+three+")")
     else:
         return listToString(t)
