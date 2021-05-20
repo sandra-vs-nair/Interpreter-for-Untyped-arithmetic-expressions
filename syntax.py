@@ -1,4 +1,3 @@
-import sys
 import collections
 
 try:
@@ -9,22 +8,39 @@ except ImportError:
 class ParseError(Exception):
     pass
 
-### Constants
+# Constants
 
 special_toks = ["(", ")"]
 
 reserved_words = ["0", "succ", "pred", "iszero",
                   "true", "false", "if", "then", "else", "and", "or", "not"]
 
-### Lexer
+# Lexer
+
+def checkinput(tokens):
+    for d in tokens:
+        flag=0
+        for word in reserved_words:
+            if word == d:
+                flag=1
+                break
+        for k in special_toks:
+            if k == d:
+                flag=1
+                break
+        if flag == 0 :
+            raise ParseError("unexpected {} in input".format(d))
 
 def lexer(s):
     i = j = 0
     tokens = []
+    
     def flush():
         nonlocal i
         if i < j:
-            tokens.append("".join(s[i:j]))
+            k="".join(s[i:j])
+            k.strip()
+            tokens.append(k)
             i = j
     while j < len(s):
         if s[j].isspace():                  #Ignores space
@@ -40,6 +56,7 @@ def lexer(s):
             else:
                 j += 1
     flush()
+    checkinput(tokens)
     return tokens
 
 ### Parser
@@ -91,8 +108,8 @@ def parse_app(w):
         t = [op, parse_atom(w)]
     else:
         t = parse_atom(w)
-    while len(w) > 0 and w[0] not in [")", "then", "else", "or", "not"]:
-        t = [t, parse_atom(w)]
+    #while len(w) > 0 and w[0] not in [")", "then", "else", "or", "not"]:
+    #    t = [t, parse_atom(w)]
     return t
 
 def parse_atom(w):

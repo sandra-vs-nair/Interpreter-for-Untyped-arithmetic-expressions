@@ -1,15 +1,7 @@
-import sys
-import os
 import collections
-import re
 import syntax
-#from iteration_utilities import deepflatten
-
-flag = 0
-
 
 def flatten(L):
-    # print(L)
     if(type(L) != list):
         return [L]
     if len(L) == 1:
@@ -38,7 +30,6 @@ def flatten(L):
         else:
             result = flatten(L[1:])
             result = [L[0],"("] + result + [")"]
-    # print(result)
     return result
 
 
@@ -61,36 +52,40 @@ def eval_term(t):
     elif t == '0':
         return '0'
 
-    elif t[0] == 'succ' and t[1] == '0':
-        return 'succ 0'
-    if t[0] == 'iszero':
-
+    #iszero t
+    elif t[0] == 'iszero':
         val = (eval_term(t[1]))
-        if (val == 0 or val == '0'):
+        if (val == 0 or val == '0' or val == '( 0 )'):
             return 'true'
         elif val[-4:] == "true" or val[-5:] == "false":
             s = ['iszero', str(val)]
             return listToString(s)
-        elif flag == 1 or val == "true" or val == "false":
-            s = ['iszero', str(val)]
-            return (listToString(s))
-
         else:
             return 'false'
 
+    #succ t
     elif t[0] == 'succ':
         val = (eval_term(t[1]))
         s = ['succ', str(val)]
         return (listToString(s))
+    
+    #pred t
     elif t[0] == 'pred':
         s = (eval_term(t[1]))
-        if s == 0 or s == '0':
+        if s == 0 or s == '0' or s == '( 0 )':
             return '0'
-        elif s[:4] == 'succ' and s[-1] == '0':
-            return s[5:]
+        elif s[:4] == 'succ':
+            if s[5:] == '( 0 )':
+                return '0'
+            else:
+                if(s[5:7] == '( ' and s[-2:] == ' )'):
+                    return s[7:-2]
+                return s[5:]
         else:
             s = ['pred', str(s)]
             return (listToString(s))
+
+    #and t or t not t
     elif t[0] == 'and':
         t1 = eval_term(t[1])
         if t1 == "false":
@@ -112,6 +107,7 @@ def eval_term(t):
         else:
             return "and("+t1+")or("+listToString(t[2])+")not("+listToString(t[3])+")"
 
+    #if-then-else
     elif t[0] == 'if':
         val = eval_term(t[1])
         if val == 'true':
@@ -121,20 +117,17 @@ def eval_term(t):
         else:
             two = ""
             three = ""
-            if(t[2] == "true" or t[2] == "false"):
+            if(t[2] == "true" or t[2] == "false" or t[2] == "0"):
                 two = t[2]
-            elif(t[2] == "0"):
-                two = "0"
             else:
                 two = listToString(t[2])
 
-            if(t[3] == "true" or t[3] == "false"):
+            if(t[3] == "true" or t[3] == "false" or t[3] == "0"):
                 three = t[3]
-            elif(t[3] == "0"):
-                three = "0"
             else:
                 three = listToString(t[3])
-
             return (t[0]+"("+val+")"+"then"+"("+two+")"+"else"+"("+three+")")
+    
+    #others
     else:
         return listToString(t)
