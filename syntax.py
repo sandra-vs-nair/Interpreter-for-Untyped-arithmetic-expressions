@@ -122,9 +122,9 @@ def parse_atom(w):
         return t
     elif w[0] == "0":
         expect("0", w)
-        return "0"
+        return ["0"]
     elif w[0] in ["true", "false"]:
-        return w.popleft()
+        return [w.popleft()]
     else:
         return [parse_var(w)]
 

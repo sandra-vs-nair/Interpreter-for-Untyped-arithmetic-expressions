@@ -1,6 +1,11 @@
 import collections
 import syntax
 
+#Global variable to mark stuck terms
+#If flag is equal to 1, the term is a stuck term
+flag = 0
+
+#Flatten nested list to single list
 def flatten(L):
     if(type(L) != list):
         return [L]
@@ -32,102 +37,115 @@ def flatten(L):
             result = [L[0],"("] + result + [")"]
     return result
 
-
+#Convert nested list to string
 def listToString(s):
 
     if isinstance(s, (str)):
         return s
     # initialize an empty string
-    str1 = " "
+    str1 = ""
     s1 = flatten(s)
     # return string
     return (str1.join(s1))
 
+#Starts evaluation
+def evaluation(t):
+    global flag
+    flag = 0
+    ls = eval_term(t)
+    return listToString(ls)
 
+#Recursive function
 def eval_term(t):
-    if t == 'true' or t == True:
-        return 'true'
-    elif t == 'false' or t == False:
-        return 'false'
-    elif t == '0':
-        return '0'
+    global flag 
+    
+    if t == ['true'] or t == ['false'] or t == ['0']:
+        return t
 
     #iszero t
     elif t[0] == 'iszero':
         val = (eval_term(t[1]))
-        if (val == 0 or val == '0' or val == '( 0 )'):
-            return 'true'
-        elif val[-4:] == "true" or val[-5:] == "false":
-            s = ['iszero', str(val)]
-            return listToString(s)
+        if flag == 1:
+            return ['iszero',val]
+        if (val == ['0']):
+            return ['true']
+        elif val[0]  == 'succ':
+            return ['false']
         else:
-            return 'false'
+            s = ['iszero', val]
+            flag = 1
+            return s
 
     #succ t
     elif t[0] == 'succ':
         val = (eval_term(t[1]))
-        s = ['succ', str(val)]
-        return (listToString(s))
+        if flag == 1:
+            return ['succ',val]
+        if val == ['true'] or val == ['false']:
+            s = ['succ', val]
+            flag = 1
+            return s
+        else:
+            s = ['succ', val]
+            return s
     
     #pred t
     elif t[0] == 'pred':
-        s = (eval_term(t[1]))
-        if s == 0 or s == '0' or s == '( 0 )':
-            return '0'
-        elif s[:4] == 'succ':
-            if s[5:] == '( 0 )':
-                return '0'
-            else:
-                if(s[5:7] == '( ' and s[-2:] == ' )'):
-                    return s[7:-2]
-                return s[5:]
+        val = (eval_term(t[1]))
+        if flag == 1:
+            return ['pred',val]
+        if val == ['0']:
+            return ['0']
+        elif val[0] == 'succ':
+            s = val[1:]
+            return s
         else:
-            s = ['pred', str(s)]
-            return (listToString(s))
+            s = ['pred', val]
+            flag = 1
+            return s
 
     #and t or t not t
     elif t[0] == 'and':
         t1 = eval_term(t[1])
-        if t1 == "false":
-            return "false"
-        elif t1 == "true":
+        if flag == 1:
+            return ['and',t1,t[2],t[3]]
+        if t1 == ['false']:
+            return ['false']
+        elif t1 == ['true']:
             t2 = eval_term(t[2])
-            if t2 == "true":
-                return "true"
-            elif t2 == "false":
+            if flag == 1:
+                return ['and',t1,t2,t[3]]
+            if t2 == ['true']:
+                return ['true']
+            elif t2 == ['false']:
                 t3 = eval_term(t[3])
-                if t3 == "true":
-                    return "false"
-                elif t3 == "false":
-                    return "true"
+                if flag == 1:
+                    ['and',t1,t2,t3]
+                if t3 == ['true']:
+                    return ['false']
+                elif t3 == ['false']:
+                    return ['true']
                 else:
-                    return "and("+t1+")or("+t2+")not("+t3+")"
+                    flag = 1
+                    return ["and",t1,t2,t3]
             else:
-                return "and("+t1+")or("+t2+")not("+listToString(t[3])+")"
+                flag = 1
+                return ["and",t1,t2,t[3]]
         else:
-            return "and("+t1+")or("+listToString(t[2])+")not("+listToString(t[3])+")"
+            flag = 1
+            return ["and",t1,t[2],t[3]]
 
     #if-then-else
     elif t[0] == 'if':
         val = eval_term(t[1])
-        if val == 'true':
+        if val == ['true']:
             return eval_term(t[2])
-        elif val == 'false':
+        elif val == ['false']:
             return eval_term(t[3])
         else:
-            two = ""
-            three = ""
-            if(t[2] == "true" or t[2] == "false" or t[2] == "0"):
-                two = t[2]
-            else:
-                two = listToString(t[2])
-
-            if(t[3] == "true" or t[3] == "false" or t[3] == "0"):
-                three = t[3]
-            else:
-                three = listToString(t[3])
-            return (t[0]+"("+val+")"+"then"+"("+two+")"+"else"+"("+three+")")
-    
-    #others
+            flag = 1
+            return t
+   
+   #others
     else:
         return listToString(t)

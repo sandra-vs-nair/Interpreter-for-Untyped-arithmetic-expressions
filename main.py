@@ -6,6 +6,6 @@ for line in syntax.read_lines("> "):
         if(line == "quit"):
             exit(0)
         t = syntax.parse_term(line)
-        print(execute.eval_term(t))
+        print(execute.evaluation(t))
     except syntax.ParseError as e:
         print("error: {}".format(e))
