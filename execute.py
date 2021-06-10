@@ -120,24 +120,26 @@ def eval_term(t):
             elif t2 == ['false']:
                 t3 = eval_term(t[3])
                 if flag == 1:
-                    ['and',t1,t2,t3]
+                    return ['and',t1,t2,t3]
                 if t3 == ['true']:
                     return ['false']
                 elif t3 == ['false']:
                     return ['true']
                 else:
                     flag = 1
-                    return ["and",t1,t2,t3]
+                    return ['and',t1,t2,t3]
             else:
                 flag = 1
-                return ["and",t1,t2,t[3]]
+                return ['and',t1,t2,t[3]]
         else:
             flag = 1
-            return ["and",t1,t[2],t[3]]
+            return ['and',t1,t[2],t[3]]
 
     #if-then-else
     elif t[0] == 'if':
         val = eval_term(t[1])
+        if flag == 1:
+            return ['if',val,t[2],t[3]]
         if val == ['true']:
             return eval_term(t[2])
         elif val == ['false']:
